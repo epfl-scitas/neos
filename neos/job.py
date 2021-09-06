@@ -31,7 +31,8 @@
 #  The fact that you are presently reading this means that you have had
 #  knowledge of the CeCILL license and that you accept its terms.
 
-import six
+import json
+import re
 import logging
 logger = logging.getLogger(__name__)
 import os
@@ -49,8 +50,7 @@ def localtz():
     return timezone(time.tzname[0])
 
 
-@six.add_metaclass(Singleton)
-class SlurmJob(object):
+class SlurmJob(metaclass=Singleton):
 
     def __init__(self):
 
@@ -92,8 +92,14 @@ class SlurmJob(object):
         job_list = pyslurm.job().find_id(str(self.jobid))
         job = job_list[0]
         self.gres = None
-        if 'gres' in job.keys():
+        logger.debug('Slurm job {}'.format(json.dumps(job)))
+        if 'gres' in job:
             self.gres = job['gres']
+        elif 'tres_alloc_str' in job and 'gres' in job['tres_alloc_str']:
+            extract_gres = re.compile('(gres.*?)(,.*)?$')
+            match = extract_gres.search(job['tres_alloc_str'])
+            if match:
+                self.gres = match.group(1)
         self.shared = job['shared'] != '0'
         self.end = datetime.fromtimestamp(job['end_time'], localtz())
 
@@ -115,7 +121,8 @@ class SlurmJob(object):
                      'partition',
                      'gpu',
                      'shared',
-                     'end']:
+                     'end',
+                     'gres']:
             logger.debug(">> %s: %s", attr, str(getattr(self, attr)))
 
 
