@@ -148,7 +148,7 @@ class ScenarioVnc(ScenarioWM):
                '-auth', self.opts.xauthfile, '-rfbport', str(self.rfbport),
                '-rfbwait', '30000', '-localhost',
                '-rfbauth', self.opts.vauthfile,
-               '-oa', self.opts.logfile, '-noxdamage']
+               '-oa', self.opts.logfile, '-noxdamage', '-forever']
         self.cmd_run_bg(cmd, stdout=stdout)
 
         return 0

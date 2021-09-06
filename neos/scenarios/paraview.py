@@ -58,12 +58,12 @@ class ScenarioParaview(ScenarioWM):
         sys.stdout.flush()  # force flush to avoid buffering
 
         if self.job.shared:
-            vglrun = ['vglrun', '-display', ':0']
+            vglrun = ['vglrun', '-display', ':{}'.format(self.display)]
         else:
             vglrun = None
 
         # Run pvserver command
-        cmd = ['mpirun', '-x', "DISPLAY=:%s" % (self.display),
+        cmd = ['srun',
                "%s/bin/pvserver" % (self.opts.paraviewpath),
                "--connect-id=%s" % (self.display),
                '-rc', "-ch=%s" % (self.srcip)]

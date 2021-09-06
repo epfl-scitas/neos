@@ -44,4 +44,12 @@ class ScenarioXfce4(ScenarioVnc):
 
     def run(self):
 
-        return self._run_vnc('xfce4-session')
+        vnc_fail = self._run_vnc('xfce4-session')
+        if vnc_fail:
+            return vnc_fail
+
+        self.cmd_run_bg(['xfwm4'])
+        self.cmd_run_bg(['xfdesktop'])
+        self.cmd_run_bg(['xfce4-terminal'])
+
+        return 0
